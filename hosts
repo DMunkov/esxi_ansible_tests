@@ -1,5 +1,5 @@
 [vcenter_servers]
-vcenter.dima.lab
+vcenter.home.lab
 
 [vlan1:children]
 esx_hosts
