@@ -1,0 +1,30 @@
+- name: Set vars (do not disable this task)
+  import_tasks: set_vars.yml
+
+- name: Configure NTP
+  import_tasks: ntp_settings.yml
+  when: ntp
+
+- name: Configure other settings
+  import_tasks: other_settings.yml
+
+- name: Configure basic network
+  import_tasks: network_settings.yml
+
+# NOTE: Below block needs to be done after an IP change
+# TODO: Look inside to check if a proper way has been already implemented
+- name: Rename datastore1 to boot (Workaround)
+  import_tasks: rename_datastore.yml
+
+# NOTE: ESX host will be rebooted between these steps
+
+- name: Join vCenter
+  import_tasks: join_vcenter.yml
+  when: esx.join_vcenter
+
+- name: Set up networks
+  import_tasks: setup_networks.yml
+  when: vcenter_networks
+
+
+# TODO: Cleanup - change esx.ansible_host to current_ip 

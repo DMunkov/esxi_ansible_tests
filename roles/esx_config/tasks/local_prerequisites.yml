@@ -1,0 +1,7 @@
+- name: Install pip modules
+  local_action: pip
+  args:
+    name: 
+      - pyVim
+      - pyVmomi
+    state: present

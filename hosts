@@ -1,0 +1,9 @@
+[vcenter_servers]
+vcenter.dima.lab
+
+[vlan1:children]
+esx_hosts
+
+[esx_hosts]
+ESX02 ansible_host=192.168.1.102 join_vcenter=yes current_ip=192.168.1.209
+#ESX01 ansible_host=192.168.1.104

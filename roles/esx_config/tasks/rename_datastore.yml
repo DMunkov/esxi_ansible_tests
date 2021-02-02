@@ -1,0 +1,54 @@
+## TODO: Check PR: https://github.com/ansible-collections/vmware/pull/16 for a new module to rename vSphere stuff
+## Below won't work as it is an example from the PR above
+## Workaround is on the next step
+## - name: Rename boot datastore
+##   community.vmware.vmware_object_rename:
+##     hostname: '{{ current_ip }}'
+##     username: '{{ esx.ansible_user }}'
+##     password: '{{ esx.ansible_password }}'
+##     validate_certs: no
+##     new_name: "{{ esx.inventory_hostname }}_boot"
+##     object_name: datastore1
+##     object_type: Datastore
+##   delegate_to: localhost
+
+- name: Gather vmware host facts
+  vmware_host_facts:
+    hostname: '{{ current_ip }}'
+    username: '{{ esx.ansible_user }}'
+    password: '{{ esx.ansible_password }}'
+    esxi_hostname: '{{ current_ip }}'
+    validate_certs: no
+  register: host_facts
+  delegate_to: localhost
+
+- block:
+  - name: Enable SSH on the host
+    vmware_host_service_manager:
+      hostname: '{{ esx.ansible_host }}'
+      username: '{{ esx.ansible_user }}'
+      password: '{{ esx.ansible_password }}'
+      esxi_hostname: '{{ esx.ansible_host }}'
+      validate_certs: no
+      service_name: TSM-SSH
+      state: present
+    delegate_to: localhost
+
+  - name: Rename datastore
+    command: "vim-cmd hostsvc/datastore/rename datastore1 {{ esx.inventory_hostname }}_boot"
+    delegate_to: '{{ esx.inventory_hostname }}'
+
+  - name: Disable SSH
+    vmware_host_service_manager:
+      hostname: '{{ esx.ansible_host }}'
+      username: '{{ esx.ansible_user }}'
+      password: '{{ esx.ansible_password }}'
+      esxi_hostname: '{{ esx.ansible_host }}'
+      validate_certs: no
+      service_name: TSM-SSH
+      state: absent
+    delegate_to: localhost
+  when: host_facts.ansible_facts.ansible_datastore | selectattr(search_key,'equalto',search_val) | list | count > 0
+  vars:
+    search_key: name
+    search_val: datastore1

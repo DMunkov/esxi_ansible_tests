@@ -1,0 +1,15 @@
+- name: Add Networks
+  vmware_portgroup:
+    hostname: '{{ esx.ansible_host }}'
+    username: '{{ esx.ansible_user }}'
+    password: '{{ esx.ansible_password }}'
+    hosts: '{{ esx.ansible_host }}'
+    validate_certs: no
+    switch: "{{ net.vswitch }}"
+    portgroup: "{{ net.name }}"
+    vlan_id: "{{ net.vlan }}"
+    state: present
+  delegate_to: localhost
+  with_items: "{{ vcenter_networks }}"
+  loop_control:
+    loop_var: net

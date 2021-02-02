@@ -1,0 +1,64 @@
+- name: Configure ESXi hostname and DNS servers
+  vmware_dns_config:
+    hostname: '{{ current_ip }}'
+    username: '{{ esx.ansible_user }}'
+    password: '{{ esx.ansible_password }}'
+    validate_certs: no
+    change_hostname_to: "{{ esx.inventory_hostname }}"
+    domainname: "{{ esx.domain_name }}"
+    dns_servers: "{{ esx.dns }}"
+  delegate_to: localhost
+
+- name: Disable IPv6 for an host system
+  vmware_host_ipv6:
+    hostname: '{{ current_ip }}'
+    username: '{{ esx.ansible_user }}'
+    password: '{{ esx.ansible_password }}'
+    esxi_hostname: '{{ current_ip }}'
+    validate_certs: no
+    state: disabled
+  delegate_to: localhost
+  notify: reboot host
+
+- name: Change host IP
+  vmware_vmkernel:
+    hostname: '{{ current_ip }}'
+    username: '{{ esx.ansible_user }}'
+    password: '{{ esx.ansible_password }}'
+    esxi_hostname: '{{ current_ip }}'
+    validate_certs: no
+    vswitch_name: vSwitch0
+    portgroup_name: Management Network
+    network:
+      type: 'static'
+      ip_address: "{{ esx.ansible_host }}"
+      subnet_mask: "{{ esx.netmask }}"
+    state: present
+    enable_mgmt: True
+  async: 45
+  poll: 0
+  delegate_to: localhost
+  notify: reboot host
+
+- name: Wait for the host network interface to come up
+  wait_for:
+    host: "{{ esx.ansible_host }}"
+    state: started
+    port: 443
+
+- name: Set current_ip to ansible_host
+  set_fact:
+    current_ip: "{{ esx.ansible_host }}"
+
+# NOTE: That works, but we won't be available to connect to the host without proper VLAN in the first place (through iDRAC)
+# - name: Chage VLAN?
+#   vmware_portgroup:
+#     hostname: '{{ esx.ansible_host }}'
+#     username: '{{ esx.ansible_user }}'
+#     password: '{{ esx.ansible_password }}'
+#     hosts: '{{ esx.ansible_host }}'
+#     validate_certs: no
+#     switch: vSwitch0
+#     portgroup: Management Network
+#     vlan_id: 0
+#   delegate_to: localhost

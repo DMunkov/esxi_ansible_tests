@@ -1,0 +1,14 @@
+- name: Set current_ip if host current_ip is defined
+  set_fact:
+    current_ip: "{{ esx.current_ip }}"
+  when: esx.current_ip is defined
+
+- name: Set IP to ansible_host if current_ip is not set
+  set_fact:
+    current_ip: "{{ esx.ansible_host }}"
+  when: esx.current_ip is not defined
+
+# - local_action: 
+#     module: copy
+#     content: "{{ host_facts | to_nice_json }}"
+#     dest: "./{{ esx.inventory_hostname }}.json"

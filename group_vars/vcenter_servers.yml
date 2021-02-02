@@ -1,0 +1,4 @@
+vcenter_username: administrator@vsphere.local
+vcenter_hostname: vcenter.home.lab
+vcenter_password: password
+validate_certs: no

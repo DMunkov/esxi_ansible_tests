@@ -1,0 +1,3 @@
+ansible_user: root
+ansible_password: password
+ansible_become_password: "{{ ansible_password }}"

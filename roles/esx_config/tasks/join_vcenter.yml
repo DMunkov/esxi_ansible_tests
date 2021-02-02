@@ -1,0 +1,27 @@
+- name: Run handlers now (reboot)
+  meta: flush_handlers
+
+- name: Wait for the host to come back up
+  wait_for:
+    host: "{{ esx.ansible_host }}"
+    delay: 30
+    state: started
+    port: 443
+
+- name: Pause for 20 sec
+  pause:
+    seconds: 20
+
+- name: Add ESXi Host to vCenter
+  vmware_host:
+    hostname: '{{ vcenter_hostname }}'
+    username: '{{ vcenter_username }}'
+    password: '{{ vcenter_password }}'
+    validate_certs: no
+    datacenter: '{{ vcenter_datacenter }}'
+    cluster: '{{ vcenter_cluster }}'
+    esxi_hostname: '{{ esx.ansible_host }}'
+    esxi_username: '{{ esx.ansible_user }}'
+    esxi_password: '{{ esx.ansible_password }}'
+    state: present
+  delegate_to: localhost

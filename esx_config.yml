@@ -1,0 +1,20 @@
+---
+- name: Configure ESX hosts
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  vars_files: # Need to include othervise included var files through group membership (since we are technically executing the deploy tasks on localhost)
+    - group_vars/vcenter_servers.yml
+    - group_vars/vlan1.yml
+  # vars_prompt:
+  #   - name: "vcenter_password"
+  #     prompt: "vCenter password"
+  #     private: yes
+
+  tasks:
+    - name: Run the configuration
+      with_items: "{{ groups['esx_hosts'] }}"
+      include_role:
+        name: esx_config
+      vars:
+        - esx: "{{ hostvars[item] }}"

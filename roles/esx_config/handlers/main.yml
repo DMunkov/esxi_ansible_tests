@@ -1,0 +1,11 @@
+- name: reboot host
+  vmware_host_powerstate:
+    hostname: '{{ esx.ansible_host }}'
+    username: '{{ esx.ansible_user }}'
+    password: '{{ esx.ansible_password }}'
+    esxi_hostname: '{{ esx.ansible_host }}'
+    validate_certs: no
+    state: reboot-host
+    force: yes
+  delegate_to: localhost
+  register: reboot_host

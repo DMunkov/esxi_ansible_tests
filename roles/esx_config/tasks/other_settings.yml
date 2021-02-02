@@ -1,0 +1,32 @@
+- name: Gather vmware host facts
+  vmware_host_facts:
+    hostname: '{{ current_ip }}'
+    username: '{{ esx.ansible_user }}'
+    password: '{{ esx.ansible_password }}'
+    esxi_hostname: '{{ current_ip }}'
+    validate_certs: no
+  register: host_facts
+  delegate_to: localhost
+
+- name: Set the Power Management Policy of a host system to high-performance
+  vmware_host_powermgmt_policy:
+    hostname: '{{ current_ip }}'
+    username: '{{ esx.ansible_user }}'
+    password: '{{ esx.ansible_password }}'
+    esxi_hostname: '{{ current_ip }}'
+    validate_certs: no
+    policy: high-performance
+  delegate_to: localhost
+
+- name: Meltdown/Spectre fix for Intel
+  vmware_host_config_manager:
+    hostname: '{{ current_ip }}'
+    username: '{{ esx.ansible_user }}'
+    password: '{{ esx.ansible_password }}'
+    esxi_hostname: '{{ current_ip }}'
+    validate_certs: no
+    options:
+        'VMkernel.Boot.hyperthreadingMitigation': true
+        'VMkernel.Boot.hyperthreadingMitigationIntraVM': false
+  delegate_to: localhost
+  when: "'intel' in host_facts.ansible_facts.ansible_processor.lower()"

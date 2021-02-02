@@ -1,0 +1,22 @@
+---
+- name: Tets conectivity to vCenter(s)
+  hosts: localhost
+  gather_facts: no
+  vars_files:
+    - group_vars/vcenter_servers.yml
+  vars:
+    ansible_python_interpreter: "/usr/bin/env python3"
+  vars_prompt:
+    - name: "vcenter_password"
+      prompt: "vcenter password"
+      private: yes
+  tasks:
+    - name: Provide information about vCenter
+      vmware_about_info:
+        hostname: "{{ item }}"
+        username: "{{ vcenter_user }}"
+        password: "{{ vcenter_password }}"
+        validate_certs: false
+      loop: "{{ vcenter_servers }}"
+      delegate_to: localhost
+      register: vcenter_about_info

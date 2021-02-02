@@ -1,0 +1,23 @@
+gateway: 192.168.1.1
+cidr: 24
+netmask: 255.255.255.0
+dns: 
+  - 192.168.1.1
+  - 192.168.1.10
+
+ntp:
+  - 0.nz.pool.ntp.org
+  - 1.nz.pool.ntp.org
+
+domain_name: home.lab
+
+vcenter_datacenter: "Datacenter"
+vcenter_cluster: "Cluster"
+
+vcenter_networks:
+  - name: Prod64
+    vlan: 64
+    vswitch: vSwitch0
+  - name: SomeOtherVlan
+    vlan: 100
+    vswitch: vSwitch0
